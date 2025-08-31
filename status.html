@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Education API - Futuristic Dashboard</title>
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+body { font-family: 'Segoe UI', sans-serif; min-height:100vh; overflow:hidden; transition: background 0.5s, color 0.5s; }
+
+body.dark { background: linear-gradient(135deg,#1e3a8a,#6b21a8); color:#fff; }
+body.light { background: linear-gradient(135deg,#fef3c7,#fb923c); color:#1f2937; }
+
+header { text-align:center; padding:2rem 1rem; position:relative; z-index:10; }
+header h1 { font-size:2.5rem; font-weight:700; text-shadow:2px 2px 8px rgba(0,0,0,0.4); }
+header p { margin-top:0.5rem; opacity:0.9; }
+
+main {
+  max-width:1200px; margin:2rem auto; padding:1rem;
+  display:grid; grid-template-columns:repeat(auto-fit,minmax(250px,1fr)); gap:2rem;
+  position:relative; z-index:10;
+}
+
+.card {
+  background:rgba(255,255,255,0.08);
+  border-radius:1rem; padding:1.5rem; backdrop-filter:blur(12px);
+  box-shadow:0 6px 20px rgba(0,0,0,0.3);
+  transition:transform .3s ease, box-shadow .5s ease, background 0.5s, color 0.5s;
+  position:relative;
+}
+.card:hover { 
+  transform:translateY(-12px) scale(1.03); 
+  box-shadow:0 15px 35px rgba(0,255,255,0.6), 0 0 25px rgba(255,255,255,0.2) inset;
+  background: rgba(255,255,255,0.15);
+}
+
+h2 { font-size:1.5rem; margin-bottom:1rem; border-bottom:2px solid rgba(255,255,255,0.3); padding-bottom:.5rem; }
+ul { list-style:none; }
+ul li { margin:.6rem 0; }
+a { font-weight:600; text-decoration:none; transition:color .2s; }
+body.dark a { color:#fff; } 
+body.dark a:hover { color:#0ff; }
+body.light a { color:#1f2937; }
+body.light a:hover { color:#dc2626; }
+
+footer { text-align:center; padding:1.5rem; margin-top:2rem; background:rgba(0,0,0,0.15); font-size:.95rem; position:relative; z-index:10; transition: background 0.5s, color 0.5s; }
+
+.counter { font-size:2rem; font-weight:700; text-align:center; margin:1rem 0 0; color:#22c55e; text-shadow:0 0 10px #22c55e, 0 0 20px #22c55e; transition: color 0.5s, text-shadow 0.5s; }
+body.light .counter { color:#dc2626; text-shadow:0 0 10px #dc2626, 0 0 20px #dc2626; }
+
+label, input, select, button { display:block; width:100%; margin:.5rem 0; }
+input, select { padding:.6rem; border-radius:.5rem; border:none; outline:none; }
+button { padding:.7rem; border:none; border-radius:.5rem; background:#22c55e; color:#fff; font-weight:600; cursor:pointer; transition:background .2s; }
+button:hover { background:#16a34a; }
+
+pre { max-height:200px; overflow:auto; background:rgba(0,0,0,0.4); padding:1rem; border-radius:.5rem; white-space:pre-wrap; word-break:break-word; transition: background 0.5s, color 0.5s; }
+body.light pre { background: rgba(255,255,255,0.4); color: #1f2937; }
+
+#particle-canvas { position:fixed; top:0; left:0; width:100%; height:100%; z-index:0; }
+
+#theme-toggle {
+  position:fixed; top:1rem; left:1rem; z-index:20;
+  width:45px; height:45px; border:none; border-radius:50%;
+  background:rgba(255,255,255,0.85); cursor:pointer;
+  display:flex; justify-content:center; align-items:center;
+  font-size:1.2rem; color:#1f2937; box-shadow:0 4px 15px rgba(0,0,0,0.2);
+  transition: background 0.3s, color 0.3s, transform 0.2s;
+}
+#theme-toggle:hover { transform:scale(1.2); background:rgba(255,255,255,1); }
+
+.github-list { max-height:250px; overflow:auto; }
+.github-list li { margin:.5rem 0; }
+</style>
+</head>
+<body class="dark">
+
+<canvas id="particle-canvas"></canvas>
+<button id="theme-toggle">🌞</button>
+
+<header>
+  <h1>📡 Education API Dashboard</h1>
+  <p>FastAPI | Converted from Flask | Version 1.0.0</p>
+</header>
+
+<main>
+  <!-- Counters -->
+  <div class="card"><h2>Endpoints</h2><div class="counter" data-target="7">0</div></div>
+  <div class="card"><h2>Institutes</h2><div class="counter" data-target="1250">0</div></div>
+  <div class="card"><h2>Employees</h2><div class="counter" data-target="8450">0</div></div>
+  <div class="card"><h2>Teachers</h2><div class="counter" data-target="5200">0</div></div>
+
+  <!-- API Tester -->
+  <div class="card">
+    <h2>Live API Tester</h2>
+    <form id="tester">
+      <label for="endpoint">Select Endpoint:</label>
+      <select id="endpoint">
+        <option value="divisions">Divisions</option>
+        <option value="districts">Districts</option>
+        <option value="thanas?district_code=82">Thanas</option>
+        <option value="institutes?division_code=03&district_code=26">Institutes</option>
+      </select>
+      <button type="submit">Test API</button>
+    </form>
+    <pre id="result">Result will appear here...</pre>
+  </div>
+
+  <!-- GitHub Projects Card -->
+  <div class="card">
+    <h2>My GitHub Projects</h2>
+    <ul id="github-projects" class="github-list">
+      <li>Loading projects...</li>
+    </ul>
+  </div>
+
+  <div class="card"><h2>Status</h2><p>✅ API is running successfully.</p><p>📅 Last Updated: <strong id="date"></strong></p></div>
+
+  <div class="card">
+    <h2>About Me</h2>
+    <p>👤 <strong>Muhammad Sajid</strong></p>
+    <p>🚀 Developer | API Builder | Automation Enthusiast</p>
+    <p>🔗 <a href="https://t.me/OxONemo" target="_blank">Telegram: @OxONemo</a></p>
+    <p>💡 Custom APIs, scraping, automation & cloud projects.</p>
+  </div>
+</main>
+
+<footer>© 2025 Muhammad Sajid. All rights reserved.</footer>
+
+<script>
+document.getElementById("date").textContent = new Date().toLocaleString();
+
+// API Tester
+document.getElementById("tester").addEventListener("submit", async e=>{
+  e.preventDefault();
+  const endpoint = document.getElementById("endpoint").value;
+  const resBox = document.getElementById("result");
+  resBox.textContent = "⏳ Loading...";
+  try {
+    const res = await fetch(`/api/v1/${endpoint}`);
+    const data = await res.json();
+    resBox.textContent = JSON.stringify(data,null,2);
+  } catch(err){ resBox.textContent="❌ Error: "+err; }
+});
+
+// Theme toggle
+const themeBtn = document.getElementById("theme-toggle");
+themeBtn.addEventListener("click", ()=>{
+  if(document.body.classList.contains("dark")){
+    document.body.classList.replace("dark","light");
+    themeBtn.textContent="🌙";
+    particleColor='rgba(0,0,0,0.7)';
+  } else {
+    document.body.classList.replace("light","dark");
+    themeBtn.textContent="🌞";
+    particleColor='rgba(255,255,255,0.7)';
+  }
+});
+
+// Animated counters
+document.querySelectorAll('.counter').forEach(counter=>{
+  const target = +counter.dataset.target; let count=0;
+  const update = ()=>{ let inc=target/200; if(count<target){count+=inc; counter.innerText=Math.ceil(count); setTimeout(update,15);} else counter.innerText=target;}
+  update();
+});
+
+// Particle background
+const canvas = document.getElementById("particle-canvas");
+const ctx = canvas.getContext("2d");
+let w=canvas.width=window.innerWidth;
+let h=canvas.height=window.innerHeight;
+const mouse={x:w/2, y:h/2};
+let particleColor='rgba(255,255,255,0.7)';
+const particles=[];
+const maxDist=120;
+window.addEventListener('resize',()=>{ w=canvas.width=window.innerWidth; h=canvas.height=window.innerHeight; });
+window.addEventListener('mousemove', e=>{ mouse.x=e.clientX; mouse.y=e.clientY; });
+
+class Particle{
+  constructor(){ this.x=Math.random()*w; this.y=Math.random()*h; this.size=Math.random()*2+1; this.speedX=(Math.random()*1)-0.5; this.speedY=(Math.random()*1)-0.5;}
+  draw(){ ctx.beginPath(); ctx.arc(this.x,this.y,this.size,0,Math.PI*2); ctx.fillStyle=particleColor; ctx.fill();}
+  update(){
+    this.x+=this.speedX+(mouse.x-this.x)*0.002; this.y+=this.speedY+(mouse.y-this.y)*0.002;
+    if(this.x<0||this.x>w) this.speedX*=-1;
+    if(this.y<0||this.y>h) this.speedY*=-1;
+    this.draw();
+  }
+}
+
+for(let i=0;i<120;i++) particles.push(new Particle());
+
+function connectParticles(){
+  for(let i=0;i<particles.length;i++){
+    for(let j=i;j<particles.length;j++){
+      const dx=particles[i].x-particles[j].x;
+      const dy=particles[i].y-particles[j].y;
+      const dist=Math.sqrt(dx*dx+dy*dy);
+      if(dist<maxDist){
+        ctx.beginPath();
+        ctx.strokeStyle=`rgba(255,255,255,${1-dist/maxDist})`;
+        ctx.lineWidth=0.5;
+        ctx.moveTo(particles[i].x,particles[i].y);
+        ctx.lineTo(particles[j].x,particles[j].y);
+        ctx.stroke();
+      }
+    }
+  }
+}
+
+function animate(){ ctx.clearRect(0,0,w,h); particles.forEach(p=>p.update()); connectParticles(); requestAnimationFrame(animate);}
+animate();
+// --- Animated Browser Tab Title ---
+const titles = ["Education API 🚀", "Futuristic Dashboard 🌐", "FastAPI | Version 1.0.0"];
+let titleIndex = 0;
+let charIndex = 0;
+let forward = true;
+
+function animateTitle() {
+    const current = titles[titleIndex];
+    document.title = current.slice(0, charIndex) + (forward ? '|' : '');
+    if (forward) {
+        charIndex++;
+        if (charIndex > current.length) {
+            forward = false;
+            setTimeout(animateTitle, 1000); // pause at full word
+            return;
+        }
+    } else {
+        charIndex--;
+        if (charIndex < 0) {
+            forward = true;
+            titleIndex = (titleIndex + 1) % titles.length;
+        }
+    }
+    setTimeout(animateTitle, 150);
+}
+animateTitle();
+// Fetch GitHub Repositories dynamically
+async function loadGitHubProjects(){
+  const ul = document.getElementById('github-projects');
+  ul.innerHTML = '⏳ Loading projects...';
+  try{
+    const res = await fetch('https://api.github.com/users/ReXiOP/repos');
+    const data = await res.json();
+    ul.innerHTML = '';
+    data.sort((a,b)=>new Date(b.updated_at)-new Date(a.updated_at)); // sort latest first
+    data.forEach(repo=>{
+      const li = document.createElement('li');
+      li.innerHTML = `<a href="${repo.html_url}" target="_blank">${repo.name}</a> - ⭐ ${repo.stargazers_count}`;
+      ul.appendChild(li);
+    });
+    if(data.length === 0) ul.innerHTML = '<li>No public projects found.</li>';
+  } catch(err){
+    ul.innerHTML = `<li>❌ Error loading projects: ${err}</li>`;
+  }
+}
+loadGitHubProjects();
+</script>
+</body>
+</html>
