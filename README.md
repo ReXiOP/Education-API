@@ -113,8 +113,8 @@ http://127.0.0.1:8000
 
 ## 🔗 Links
 
-- **API Docs:** `https://yourdomain.com/docs`
-- **GitHub Repo:** [https://github.com/ReXiOP/education-api-dashboard](https://github.com/ReXiOP/education-api-dashboard)
+- **API Docs:** `[https://yourdomain.com/docs](https://education-api-six.vercel.app/docs)`
+- **GitHub Repo:** [https://github.com/ReXiOP/Education-API](https://github.com/ReXiOP/Education-API)
 
 ---
 
